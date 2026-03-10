@@ -1,9 +1,9 @@
 branding:
-  appName: "TeddyNote Chat"
-  logoPath: "/logo.png"
+  appName: "MobileFactory Chat"
+  logoPath: "/logo-c.svg"
   logoWidth: 28
   logoHeight: 28
-  description: "테디노트 챗봇에게 무엇이든 물어보세요."
+  description: "모바일팩토리 챗봇에게 무엇이든 물어보세요."
   fullDescription: "/full-description.md"
 
 buttons:

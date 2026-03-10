@@ -35,7 +35,7 @@ export interface ChatConfig {
 // Default configuration
 export const defaultConfig: ChatConfig = {
   branding: {
-    appName: "TeddyNote Chat",
+    appName: "MobileFactory Chat",
     logoPath: "/logo.png",
     logoWidth: 32,
     logoHeight: 32,
