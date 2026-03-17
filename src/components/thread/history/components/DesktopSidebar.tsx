@@ -7,6 +7,7 @@ import { ThreadList } from "./ThreadList";
 import { ThreadHistoryLoading } from "./ThreadHistoryLoading";
 import { ICON_SIZE_SM } from "../constants";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
+import { useSettings } from "@/hooks/useSettings";
 
 interface DesktopSidebarProps {
   threads: Thread[];
@@ -25,6 +26,7 @@ export function DesktopSidebar({
   onNewChat,
   onShowGuide,
 }: DesktopSidebarProps) {
+  const { config } = useSettings();
   return (
     <div className="shadow-inner-right hidden h-screen w-[300px] shrink-0 flex-col items-stretch justify-start border-r-[1px] border-border lg:flex">
       {/* Header with collapse button on right */}
@@ -74,9 +76,11 @@ export function DesktopSidebar({
         )}
       </div>
 
-      <div className="border-t border-border p-4">
-        <SettingsDialog />
-      </div>
+      {config.buttons.showSettings && (
+        <div className="border-t border-border p-4">
+          <SettingsDialog />
+        </div>
+      )}
     </div>
   );
 }

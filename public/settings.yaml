@@ -10,6 +10,7 @@ buttons:
   enableFileUpload: false
   showAssistantSelector: false
   showToolCallToggle: false
+  showSettings: false
   chatInputPlaceholder: "궁금한 내용을 물어보세요."
 
 threads:

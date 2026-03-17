@@ -14,6 +14,7 @@ export interface ChatConfig {
     enableFileUpload: boolean;
     showAssistantSelector: boolean;
     showToolCallToggle: boolean;
+    showSettings: boolean;
     chatInputPlaceholder: string;
   };
   threads: {
@@ -54,6 +55,7 @@ export const defaultConfig: ChatConfig = {
     enableFileUpload: true,
     showAssistantSelector: true,
     showToolCallToggle: true,
+    showSettings: true,
     chatInputPlaceholder: "무엇이든 물어보세요",
   },
   threads: {
