@@ -30,7 +30,6 @@ import ThreadHistory from "./history";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
-import { GitHubSVG } from "../icons/github";
 import {
   Tooltip,
   TooltipContent,
@@ -92,29 +91,6 @@ function ScrollToBottom(props: { className?: string }) {
   );
 }
 
-function OpenGitHubRepo() {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <a
-            href="https://github.com/teddylee777/agent-chat-ui"
-            target="_blank"
-            className="flex items-center justify-center pr-3 h-9"
-          >
-            <GitHubSVG
-              width="24"
-              height="24"
-            />
-          </a>
-        </TooltipTrigger>
-        <TooltipContent side="left">
-          <p>Open GitHub repo</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
 
 export function Thread() {
   const [artifactContext, setArtifactContext] = useArtifactContext();
@@ -386,7 +362,6 @@ export function Thread() {
                   </Button>
                 )}
               </div>
-              <OpenGitHubRepo />
             </div>
           )}
           {chatStarted && (
@@ -431,8 +406,6 @@ export function Thread() {
                   </span>
                 </motion.button>
               </div>
-
-              <OpenGitHubRepo />
 
               <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" />
             </div>
