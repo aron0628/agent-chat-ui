@@ -7,7 +7,9 @@ branding:
   fullDescription: "/full-description.md"
 
 buttons:
-  enableFileUpload: true
+  enableFileUpload: false
+  showAssistantSelector: false
+  showToolCallToggle: false
   chatInputPlaceholder: "궁금한 내용을 물어보세요."
 
 threads:

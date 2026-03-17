@@ -239,6 +239,11 @@ export function Thread() {
     prevMessageLength.current = messages.length;
   }, [messages]);
 
+  const hasBottomButtons =
+    config.buttons.enableFileUpload ||
+    config.buttons.showToolCallToggle ||
+    config.buttons.showAssistantSelector;
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!isAssistantSelected) {
@@ -575,12 +580,44 @@ export function Thread() {
                         placeholder={config.buttons.chatInputPlaceholder}
                         rows={1}
                         style={{ maxHeight: `${UI.CHAT_TEXTAREA_MAX_HEIGHT}px` }}
-                        className="field-sizing-content resize-none border-none bg-transparent px-4 pt-4 pb-2 text-base leading-relaxed shadow-none ring-0 outline-none focus:ring-0 focus:outline-none placeholder:text-muted-foreground overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent"
+                        className={cn(
+                          "field-sizing-content resize-none border-none bg-transparent pt-4 pb-4 text-base leading-relaxed shadow-none ring-0 outline-none focus:ring-0 focus:outline-none placeholder:text-muted-foreground overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent",
+                          hasBottomButtons ? "px-4 pb-2" : "pl-4 pr-12"
+                        )}
                       />
 
+                      {!hasBottomButtons && (
+                        <div className="absolute right-3 bottom-3">
+                          {stream.isLoading ? (
+                            <Button
+                              key="stop"
+                              onClick={() => stream.stop()}
+                              size="icon"
+                              variant="outline"
+                              className="h-8 w-8"
+                            >
+                              <LoaderCircle className="h-4 w-4 animate-spin" />
+                            </Button>
+                          ) : (
+                            <Button
+                              type="submit"
+                              size="icon"
+                              className="h-8 w-8 rounded-lg"
+                              disabled={
+                                isLoading ||
+                                (!input.trim() && contentBlocks.length === 0) ||
+                                !isAssistantSelected
+                              }
+                            >
+                              <ArrowUp className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
 
-                      <div className="flex items-center justify-between gap-2 px-3 pb-3">
-                        <div className="flex items-center gap-2">
+                      {hasBottomButtons && (
+                      <div className="flex items-center justify-end gap-2 px-3 pb-3">
+                        <div className="flex flex-1 items-center gap-2">
                           {config.buttons.enableFileUpload && (
                             <>
                               <TooltipProvider>
@@ -608,6 +645,7 @@ export function Thread() {
                               />
                             </>
                           )}
+                          {config.buttons.showToolCallToggle && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -629,7 +667,9 @@ export function Thread() {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
+                          )}
 
+                          {config.buttons.showAssistantSelector && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -646,6 +686,7 @@ export function Thread() {
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
+                          )}
 
                         </div>
                         {stream.isLoading ? (
@@ -673,6 +714,7 @@ export function Thread() {
                           </Button>
                         )}
                       </div>
+                      )}
                     </form>
                   </div>
                 </div>
