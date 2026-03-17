@@ -18,7 +18,7 @@
 | `utils.ts` | `cn()` - Tailwind CSS 클래스 병합 유틸리티 (`clsx` + `tailwind-merge`) |
 | `file-validation.ts` | 파일 업로드 검증 - 지원 타입 체크, 중복 감지, 에러 토스트 (`processFiles()`) |
 | `multimodal-utils.ts` | `fileToContentBlock()` - File→Base64 변환, `isBase64ContentBlock()` 타입 가드 |
-| `ensure-tool-responses.ts` | `ensureToolCallsHaveResponses()` - AI 메시지의 tool_call에 대한 응답 메시지 자동 생성 |
+| `ensure-tool-responses.ts` | `ensureToolCallsHaveResponses()` - AI 메시지의 tool_call에 대한 응답 메시지 자동 생성 (바로 다음 메시지만 선형 스캔, tool_call_id 상관관계 없음) |
 | `agent-inbox-interrupt.ts` | `isAgentInboxInterruptSchema()` - LangGraph `HumanInterrupt` 스키마 검증 타입 가드 |
 
 ## For AI Agents
@@ -26,7 +26,9 @@
 ### Working In This Directory
 - 설정 로더가 2개: `config.ts` (클라이언트, fetch 사용), `config-server.ts` (서버, fs 사용)
 - `config.ts` 수정 시 `config-server.ts`도 동기화 필요 (동일 `ChatConfig` 스키마)
-- `assistant-api.ts`는 `providers/client.ts`의 `createClient()`를 사용
+- `assistant-api.ts`는 `providers/client.ts`의 `createClient()`를 사용 - **역의존성 주의** (lib → providers, 의도된 레이어링 위반)
+- `config.ts`에 `console.log`가 있음 (chat opener 개수 출력) - NODE_ENV 체크 없음
+- YAML 파싱된 설정에 런타임 검증(Zod) 없음 (zod가 의존성에 있으나 미사용)
 - `utils.ts`의 `cn()` 함수는 모든 컴포넌트에서 사용되는 핵심 유틸리티
 - 파일 업로드 관련: `file-validation.ts` → `multimodal-utils.ts` 순서로 의존
 
@@ -38,6 +40,11 @@ Both:         chat-openers.yaml 별도 로드 후 branding.chatOpeners에 병합
 Fallback:     settings.yaml → chat-config.yaml → defaultConfig
 ```
 
+### ensure-tool-responses 세부사항
+- 바로 다음 메시지만 검사 (선형 스캔, tool_call_id와의 상관관계 없음)
+- 합성 메시지: `"do-not-render-"` ID 접두사 + 하드코딩된 내용 `"Successfully handled tool call."`
+- 이 합성 메시지는 LangGraph 서버로 실제 메시지처럼 전송됨
+
 ### File Upload Pipeline
 ```
 File Input/Drop/Paste
@@ -46,6 +53,9 @@ File Input/Drop/Paste
   → multimodal-utils.ts: fileToContentBlock() (Base64 변환)
   → Base64ContentBlock[] 반환
 ```
+
+**Notable Details:**
+- 이미지는 메타데이터 키 `name` 사용, PDF는 `filename` 사용 - 불일치 네이밍
 
 ## Dependencies
 

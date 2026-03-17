@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-03-10 | Updated: 2026-03-10 -->
+<!-- Generated: 2026-03-10 | Updated: 2026-03-17 -->
 
 # settings
 
@@ -20,6 +20,8 @@
 - API Key는 localStorage (`lg:chat:apiKey`)에 저장 (보안을 위해 URL에 노출 안함)
 - `SettingsDialog`는 `useSettings()` 훅의 `updateUserSettings()`로 설정 변경
 - 모든 설정 변경은 실시간 반영 (localStorage + Context 상태 동시 업데이트)
+- `SettingsDialog.tsx`와 `ConnectionDialog.tsx` 모두 `@/providers/client`에서 `createClient`를 직접 import - 컴포넌트에서 직접 provider import
+- `nuqs`는 URL 파라미터 관리를 위해 직접 import - 중앙 집중식 파라미터 정의 없음
 
 ## Dependencies
 

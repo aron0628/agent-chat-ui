@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-03-10 | Updated: 2026-03-10 -->
+<!-- Generated: 2026-03-10 | Updated: 2026-03-17 -->
 
 # public
 
@@ -51,6 +51,10 @@ ui:
   autoCollapseToolCalls: boolean
   chatWidth: "default" | "wide"
 ```
+
+### Configuration Notes
+- 런타임 검증이 적용되지 않음 - 유효하지 않은 YAML 값이 `mergeConfig()`를 통해 조용히 전달됨
+- `chat-openers.yaml`은 별도로 로드되어 `branding.chatOpeners`에 병합됨
 
 ## Dependencies
 

@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-03-10 | Updated: 2026-03-10 -->
+<!-- Generated: 2026-03-10 | Updated: 2026-03-17 -->
 
 # messages
 
@@ -25,6 +25,8 @@
 - `hideToolCalls` URL 파라미터로 도구 호출 표시/숨김 토글
 - Anthropic 스트리밍 형식의 tool_use 콘텐츠를 `parseAnthropicStreamedToolCalls`로 변환
 - `thread.getMessagesMetadata()`로 브랜치 정보, 첫 등장 상태 접근
+- `nuqs`는 `ai.tsx`에서 직접 import되어 `hideToolCalls` 파라미터 관리 - 중앙 정의 없음
+- `parseAnthropicStreamedToolCalls`는 Anthropic 스트리밍 포맷을 tool_use 콘텐츠로 변환 처리
 
 ### Component Hierarchy
 ```

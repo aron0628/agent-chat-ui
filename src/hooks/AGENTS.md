@@ -23,6 +23,7 @@
 - Context 접근 훅은 모두 같은 패턴: `useContext()` + undefined 체크 + throw Error
 - 새로운 Provider 추가 시 대응하는 접근 훅을 이 디렉토리에 생성
 - `use-file-upload.tsx`는 유일하게 복잡한 훅 - 글로벌 drag 이벤트 리스너 관리
+- `use-file-upload.tsx`: contentBlocks 변경 시마다 모든 전역 drag 이벤트 리스너 재등록 (useEffect 의존성 [contentBlocks]) - 기능적으로 정확하지만 비효율적
 - 파일명 컨벤션: `useXxx.ts` (단순 훅), `use-xxx.tsx` (JSX 포함 훅)
 
 ### Hook → Provider Mapping

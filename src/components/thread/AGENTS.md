@@ -31,6 +31,82 @@
 | `agent-inbox/` | LangGraph Human-in-the-loop 인터럽트 처리 UI (see `agent-inbox/AGENTS.md`) |
 | `history/` | 채팅 히스토리 사이드바 - 스레드 목록, CRUD (see `history/AGENTS.md`) |
 
+## State Machine
+
+`index.tsx`의 상태 관리는 다음 주요 변수들로 구성된 암시적 상태 머신:
+
+### Key State Variables
+| Variable | Scope | Purpose |
+|----------|-------|---------|
+| `threadId` | URL (nuqs) | 현재 스레드 ID - `null`이면 새 채팅 |
+| `input` | Local state | 텍스트 입력 버퍼 |
+| `contentBlocks` | Local state | 업로드된 파일(이미지/PDF) 블록 |
+| `firstTokenReceived` | Local state | AI 응답 첫 토큰 수신 여부 (스켈레톤 표시 제어) |
+| `chatHistoryOpen` | URL (nuqs) | 좌측 히스토리 사이드바 표시 여부 |
+| `hideToolCalls` | URL (nuqs) | 도구 호출 결과 숨김 여부 |
+| `fullDescriptionOpen` | Local state | 앱 상세 설명 모달 표시 여부 |
+| `messages` | Stream context | LangGraph 서버에서 수신한 메시지 리스트 |
+| `isLoading` | Stream context | 스트리밍 진행 중 플래그 |
+
+### State Transitions
+
+1. **새 채팅 시작** (`chatStarted=false`)
+   - `chatStarted = !!threadId || !!messages.length`으로 결정
+   - Assistant 선택 후 메시지 입력 가능
+   - Assistant 변경 시: `threadId`, `input`, `contentBlocks`, `firstTokenReceived` 초기화
+
+2. **메시지 제출** (`handleSubmit`)
+   - `firstTokenReceived` → `false` 설정 (스켈레톤 재표시)
+   - 낙관적 업데이트: `optimisticValues` 콜백으로 즉시 UI에 표시
+   - `stream.submit()` 호출 후 `input`, `contentBlocks` 초기화
+   - `ensureToolCallsHaveResponses()`로 tool_call 메시지 자동 응답 추가
+
+3. **첫 토큰 대기** (`firstTokenReceived=false` + `isLoading=true`)
+   - AssistantMessageLoading 스켈레톤 표시
+   - 새 AI 메시지가 도착하면 `firstTokenReceived=true` 전환
+
+4. **스트리밍 진행** (`firstTokenReceived=true`)
+   - AssistantMessage로 AI 응답 렌더링
+   - 마크다운, 도구 호출, 커스텀 UI 컴포넌트 처리
+
+5. **재생성** (`handleRegenerate`)
+   - `prevMessageLength.current - 1`로 감소 (firstTokenReceived 트릭)
+   - 마지막 AI 메시지를 재생성 위해 체크포인트 지정
+
+## Edge Cases & Gotchas
+
+### firstTokenReceived 트릭
+- `handleRegenerate`에서 `prevMessageLength.current -= 1`로 감소하는 이유: useEffect가 메시지 개수 변화를 감지하여 `firstTokenReceived=true`로 설정하기 때문. 다시 false로 만들기 위해 카운터를 속인다.
+
+### ChatOpeners 비동기 패턴
+```typescript
+onSelectOpener={(opener) => {
+  setInput(opener);  // 상태 업데이트
+  setTimeout(() => {
+    const form = document.querySelector('form');
+    form?.requestSubmit();  // 다음 이벤트 루프에서 실행
+  }, 0);
+}}
+```
+- `setTimeout(..., 0)`으로 React 상태 업데이트 후 폼 제출
+- `requestSubmit()` 사용 (DOM submit() 아님) - onSubmit 핸들러 호출
+
+### ToolMessages 생성
+- `ensureToolCallsHaveResponses()`는 tool_call 후 응답이 없으면 synthetic ToolMessage 생성
+- ID에 `"do-not-render-"` 프리픽스 추가
+- 서버에는 전송되지만 UI에서 필터링되어 표시 안됨
+
+### 에러 중복 제거
+- `lastError` ref로 이전 에러 메시지 추적
+- 동일 메시지는 토스트 반복 표시 안함
+
+### 레이아웃 상수
+- 좌측 히스토리 사이드바 너비: `UI.CHAT_SIDEBAR_WIDTH = 300px`
+- 텍스트 입력 최대 높이: `UI.CHAT_TEXTAREA_MAX_HEIGHT = 490px`
+
+### 설정 기본값 변동
+- `chatHistoryOpen`의 기본값은 배포 설정에 따라 결정: `config.threads.sidebarOpenByDefault`
+
 ## For AI Agents
 
 ### Working In This Directory

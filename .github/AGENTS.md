@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-03-10 | Updated: 2026-03-10 -->
+<!-- Generated: 2026-03-10 | Updated: 2026-03-17 -->
 
 # .github
 
@@ -25,6 +25,8 @@ GitHub Actions CI 워크플로우 설정 디렉토리.
 - 4개의 독립적 job 실행: format, lint, readme-spelling, check-spelling
 - 동일 branch/PR에 대한 동시 실행은 자동 취소 (`cancel-in-progress: true`)
 - `.codespellignore`로 맞춤법 검사 예외 단어 관리
+- `package.json`에 `esbuild`가 `dependencies`에 있음 (`devDependencies` 대신) - CI에 영향을 주지 않지만 설치 크기 증가
+- CI에는 빌드 단계 없음 (형식, 린트, 맞춤법 검사만 실행)
 
 ### CI Jobs
 | Job | Command | Scope |
