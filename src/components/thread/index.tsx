@@ -336,7 +336,7 @@ export function Thread() {
               style={{ width: UI.CHAT_SIDEBAR_WIDTH }}
             >
               <div className="flex-1 overflow-hidden">
-                <ThreadHistory onShowGuide={() => setFullDescriptionOpen(true)} />
+                <ThreadHistory />
               </div>
             </div>
           </motion.div>
