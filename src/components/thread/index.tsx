@@ -98,14 +98,16 @@ export function Thread() {
   const { config, userSettings } = useSettings();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
-  const [assistantQueryId, setAssistantQueryId] = useQueryState("assistantId");
+  const [assistantQueryId, setAssistantQueryId] = useQueryState("assistantId", {
+    defaultValue: process.env.NEXT_PUBLIC_ASSISTANT_ID || "",
+  });
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
     "chatHistoryOpen",
     parseAsBoolean.withDefault(config.threads.sidebarOpenByDefault),
   );
   const [hideToolCalls, setHideToolCalls] = useQueryState(
     "hideToolCalls",
-    parseAsBoolean.withDefault(false),
+    parseAsBoolean.withDefault(true),
   );
   const [input, setInput] = useState("");
   const [fullDescriptionOpen, setFullDescriptionOpen] = useState(false);
