@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import { useStream } from "@langchain/langgraph-sdk/react";
 import { type Message } from "@langchain/langgraph-sdk";
@@ -124,6 +125,15 @@ const StreamSession = ({
     onCustomEvent: handleCustomEvent,
     onThreadId: handleThreadId,
   });
+
+  // Refetch threads when stream completes (to pick up generated titles)
+  const prevIsLoading = useRef(false);
+  useEffect(() => {
+    if (prevIsLoading.current && !streamValue.isLoading) {
+      getThreads().then(setThreads).catch(console.error);
+    }
+    prevIsLoading.current = streamValue.isLoading;
+  }, [streamValue.isLoading, getThreads, setThreads]);
 
   useEffect(() => {
     checkGraphStatus(apiUrl, apiKey).then((ok) => {

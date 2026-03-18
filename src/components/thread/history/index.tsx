@@ -21,7 +21,9 @@ export default function ThreadHistory({ onShowGuide }: ThreadHistoryProps) {
   );
   const [_threadId, setThreadId] = useQueryState("threadId");
   const [apiUrl] = useQueryState("apiUrl");
-  const [assistantId] = useQueryState("assistantId");
+  const [assistantId] = useQueryState("assistantId", {
+    defaultValue: process.env.NEXT_PUBLIC_ASSISTANT_ID || "",
+  });
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
   const finalApiUrl = apiUrl || envApiUrl;
   const finalAssistantId = assistantId?.trim();
