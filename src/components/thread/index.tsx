@@ -486,15 +486,6 @@ export function Thread() {
                             {config.branding.description}
                           </p>
                         )}
-                        {config.branding.fullDescription && (
-                          <button
-                            onClick={() => setFullDescriptionOpen(true)}
-                            className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-                          >
-                            <BookOpen className="h-4 w-4" />
-                            <span>자세한 설명 보기</span>
-                          </button>
-                        )}
                       </div>
                       {config.branding.chatOpeners && config.branding.chatOpeners.length > 0 && (
                         <ChatOpeners

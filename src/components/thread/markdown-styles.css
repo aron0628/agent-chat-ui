@@ -24,6 +24,8 @@
   text-decoration-color: rgba(37, 99, 235, 0.4);
   font-weight: 500;
   transition: all 0.2s ease;
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 .markdown-content a:hover {

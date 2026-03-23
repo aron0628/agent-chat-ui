@@ -121,9 +121,11 @@ const defaultComponents: Record<string, unknown> = {
   a: ({ className, ...props }: { className?: string }) => (
     <a
       className={cn(
-        "text-primary font-medium underline underline-offset-4",
+        "text-primary font-medium underline underline-offset-4 break-all",
         className,
       )}
+      target="_blank"
+      rel="noopener noreferrer"
       {...props}
     />
   ),
