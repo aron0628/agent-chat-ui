@@ -134,12 +134,17 @@ const StreamSession = ({
 
   // Refetch threads when stream completes (to pick up generated titles)
   const prevIsLoading = useRef(false);
+  const getThreadsRef = useRef(getThreads);
+  const setThreadsRef = useRef(setThreads);
+  getThreadsRef.current = getThreads;
+  setThreadsRef.current = setThreads;
+
   useEffect(() => {
     if (prevIsLoading.current && !streamValue.isLoading) {
-      getThreads().then(setThreads).catch(console.error);
+      getThreadsRef.current().then(setThreadsRef.current).catch(console.error);
     }
     prevIsLoading.current = streamValue.isLoading;
-  }, [streamValue.isLoading, getThreads, setThreads]);
+  }, [streamValue.isLoading]);
 
   useEffect(() => {
     checkGraphStatus(apiUrl, apiKey).then((ok) => {

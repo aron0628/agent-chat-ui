@@ -2,6 +2,8 @@ import React, {
   createContext,
   useState,
   useEffect,
+  useCallback,
+  useMemo,
   ReactNode,
 } from "react";
 import { ChatConfig, defaultConfig, loadConfig } from "@/lib/config";
@@ -119,15 +121,15 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
     }
   }, [userSettings]);
 
-  const updateUserSettings = (settings: Partial<UserSettings>) => {
+  const updateUserSettings = useCallback((settings: Partial<UserSettings>) => {
     setUserSettings((prev) => {
       const newSettings = { ...prev, ...settings };
       saveUserSettings(newSettings);
       return newSettings;
     });
-  };
+  }, []);
 
-  const resetUserSettings = () => {
+  const resetUserSettings = useCallback(() => {
     const defaultUserSettings: UserSettings = {
       fontFamily: config.theme.fontFamily,
       fontSize: config.theme.fontSize,
@@ -137,12 +139,15 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
     };
     setUserSettings(defaultUserSettings);
     saveUserSettings(defaultUserSettings);
-  };
+  }, [config]);
+
+  const value = useMemo(
+    () => ({ config, userSettings, updateUserSettings, resetUserSettings }),
+    [config, userSettings, updateUserSettings, resetUserSettings],
+  );
 
   return (
-    <SettingsContext.Provider
-      value={{ config, userSettings, updateUserSettings, resetUserSettings }}
-    >
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   );
