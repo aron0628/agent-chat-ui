@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { isThreadOwnedByUser } from "@/lib/auth-db";
+import { insertUserThread, isThreadOwnedByUser } from "@/lib/auth-db";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -74,10 +74,16 @@ async function proxyRequest(
       try {
         const owned = await isThreadOwnedByUser(threadId, userId);
         if (!owned) {
-          return NextResponse.json(
-            { error: "Access denied" },
-            { status: 403, headers: CORS_HEADERS },
-          );
+          // Auto-register ownership for race condition:
+          // onThreadId fires INSERT concurrently, record may not exist yet.
+          try {
+            await insertUserThread(threadId, userId);
+          } catch {
+            return NextResponse.json(
+              { error: "Access denied" },
+              { status: 403, headers: CORS_HEADERS },
+            );
+          }
         }
       } catch {
         // DB error — fail-secure
@@ -101,10 +107,17 @@ async function proxyRequest(
         try {
           const owned = await isThreadOwnedByUser(threadId, userId);
           if (!owned) {
-            return NextResponse.json(
-              { error: "Access denied" },
-              { status: 403, headers: CORS_HEADERS },
-            );
+            // Auto-register ownership for race condition:
+            // onThreadId callback fires INSERT concurrently with /runs POST,
+            // so the record may not exist yet. Register it here to resolve.
+            try {
+              await insertUserThread(threadId, userId);
+            } catch {
+              return NextResponse.json(
+                { error: "Access denied" },
+                { status: 403, headers: CORS_HEADERS },
+              );
+            }
           }
         } catch {
           return NextResponse.json(
