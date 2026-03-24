@@ -138,6 +138,11 @@ async function proxyRequest(
     headers["X-Api-Key"] = apiKey;
   }
 
+  const LANGGRAPH_AUTH_KEY = process.env.LANGGRAPH_AUTH_KEY ?? "";
+  if (LANGGRAPH_AUTH_KEY) {
+    headers["Authorization"] = `Bearer ${LANGGRAPH_AUTH_KEY}`;
+  }
+
   try {
     const upstreamResponse = await fetch(url.toString(), {
       method: request.method,
