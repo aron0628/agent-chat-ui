@@ -10,6 +10,7 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
+import { useSession } from "next-auth/react";
 import { createClient } from "./client";
 
 export interface ThreadContextType {
@@ -34,17 +35,26 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
   const finalApiUrl = apiUrl || envApiUrl;
   const sanitizedAssistantId = assistantId?.trim();
   const finalAssistantId = sanitizedAssistantId || undefined;
+  const { data: session } = useSession();
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {
     if (!finalApiUrl || !finalAssistantId) return [];
+    if (!session?.user?.id) return [];
     const client = createClient(finalApiUrl, getApiKey() ?? undefined);
 
-    const threads = await client.threads.search({
-      limit: 100,
-    });
+    // Fetch owned thread IDs and all threads in parallel
+    const [ownedRes, allThreads] = await Promise.all([
+      fetch("/api/user-threads").then((r) => r.json()).catch(() => ({ threadIds: [] })),
+      client.threads.search({ limit: 100 }),
+    ]);
 
-    return threads;
-  }, [finalApiUrl, finalAssistantId]);
+    const ownedIds = new Set<string>(ownedRes.threadIds ?? []);
+
+    // If user has no threads yet, return empty
+    if (ownedIds.size === 0) return [];
+
+    return allThreads.filter((t: Thread) => ownedIds.has(t.thread_id));
+  }, [finalApiUrl, finalAssistantId, session?.user?.id]);
 
   const value = useMemo(
     () => ({

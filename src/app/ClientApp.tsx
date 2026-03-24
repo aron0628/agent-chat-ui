@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { SessionProvider } from "next-auth/react";
 
 import { Thread } from "@/components/thread";
 import { ArtifactProvider } from "@/components/thread/artifact";
@@ -17,16 +18,18 @@ interface ClientAppProps {
 export default function ClientApp({ initialConfig }: ClientAppProps) {
   return (
     <React.Suspense fallback={<div></div>}>
-      <Toaster />
-      <SettingsProvider initialConfig={initialConfig}>
-        <ThreadProvider>
-          <StreamProvider>
-            <ArtifactProvider>
-              <Thread />
-            </ArtifactProvider>
-          </StreamProvider>
-        </ThreadProvider>
-      </SettingsProvider>
+      <SessionProvider>
+        <Toaster />
+        <SettingsProvider initialConfig={initialConfig}>
+          <ThreadProvider>
+            <StreamProvider>
+              <ArtifactProvider>
+                <Thread />
+              </ArtifactProvider>
+            </StreamProvider>
+          </ThreadProvider>
+        </SettingsProvider>
+      </SessionProvider>
     </React.Suspense>
   );
 }

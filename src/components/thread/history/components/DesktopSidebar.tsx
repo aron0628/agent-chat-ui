@@ -1,7 +1,8 @@
 import { Thread } from "@langchain/langgraph-sdk";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PanelRightOpen, PanelRightClose, BookOpen } from "lucide-react";
+import { PanelRightOpen, PanelRightClose, BookOpen, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { NewChatButton } from "./NewChatButton";
 import { ThreadList } from "./ThreadList";
 import { ThreadHistoryLoading } from "./ThreadHistoryLoading";
@@ -74,6 +75,23 @@ export function DesktopSidebar({
         ) : (
           <ThreadList threads={threads} />
         )}
+      </div>
+
+      {/* Logout button */}
+      <div className="border-t border-border px-4 py-2">
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-2 text-sm font-medium hover:bg-accent h-10 cursor-pointer"
+          onClick={async () => {
+            try {
+              await fetch("/api/auth/clear-cache", { method: "POST" });
+            } catch {}
+            signOut({ callbackUrl: "/login" });
+          }}
+        >
+          <LogOut className={ICON_SIZE_SM} />
+          <span>로그아웃</span>
+        </Button>
       </div>
 
       {config.buttons.showSettings && (

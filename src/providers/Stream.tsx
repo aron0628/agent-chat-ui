@@ -109,6 +109,12 @@ const StreamSession = ({
   const handleThreadId = useCallback(
     (id: string) => {
       setThreadId(id);
+      // Record thread ownership
+      fetch("/api/user-threads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId: id }),
+      }).catch((err) => console.warn("[Stream] Failed to record thread ownership:", err));
       // Refetch threads list when thread ID changes.
       // Wait for some seconds before fetching so we're able to get the new thread that was created.
       sleep().then(() => getThreads().then(setThreads).catch(console.error));
