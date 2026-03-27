@@ -39,6 +39,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
   session: {
     strategy: "jwt",
+    maxAge: 8 * 60 * 60,      // 8시간
+    updateAge: 60 * 60,       // 1시간마다 쿠키 갱신 (rolling)
   },
   callbacks: {
     async jwt({ token, user, trigger }) {

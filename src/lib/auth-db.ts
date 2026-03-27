@@ -44,7 +44,7 @@ export async function getUserById(
   userId: string,
 ): Promise<UserRow | null> {
   const rows = await query<UserRow>(
-    "SELECT * FROM users WHERE user_id = $1",
+    "SELECT * FROM users WHERE user_id = $1 AND is_active = true",
     [userId],
   );
   return rows[0] ?? null;

@@ -8,11 +8,15 @@ const LANGGRAPH_API_URL =
   process.env.LANGGRAPH_API_URL ?? "http://localhost:2024";
 const LANGSMITH_API_KEY = process.env.LANGSMITH_API_KEY ?? "";
 
-// CORS headers matching the original initApiPassthrough behavior
+// CORS headers — origin is restricted to ALLOWED_ORIGIN env var.
+// If ALLOWED_ORIGIN is not set, no origin is allowed (fail-secure).
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "";
 const CORS_HEADERS: Record<string, string> = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
   "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "*",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Api-Key",
+  "Access-Control-Allow-Credentials": "true",
+  "Vary": "Origin",
 };
 
 // Extract thread ID from path like /api/threads/{threadId}/...
@@ -143,12 +147,6 @@ async function proxyRequest(
 
   if (LANGSMITH_API_KEY) {
     headers["X-Api-Key"] = LANGSMITH_API_KEY;
-  }
-
-  // Forward relevant headers
-  const apiKey = request.headers.get("x-api-key");
-  if (apiKey) {
-    headers["X-Api-Key"] = apiKey;
   }
 
   const LANGGRAPH_AUTH_KEY = process.env.LANGGRAPH_AUTH_KEY ?? "";
