@@ -97,16 +97,21 @@ export function ArtifactTitle(props: HTMLAttributes<HTMLDivElement>) {
 }
 
 export function ArtifactProvider(props: { children?: ReactNode }) {
-  const content = useState<HTMLElement | null>(null);
-  const title = useState<HTMLElement | null>(null);
-
-  const open = useState<string | null>(null);
-  const mounted = useState<string | null>(null);
-  const context = useState<Record<string, unknown>>({});
+  const [contentVal, setContent] = useState<HTMLElement | null>(null);
+  const [titleVal, setTitle] = useState<HTMLElement | null>(null);
+  const [openVal, setOpen] = useState<string | null>(null);
+  const [mountedVal, setMounted] = useState<string | null>(null);
+  const [contextVal, setContext] = useState<Record<string, unknown>>({});
 
   const value = useMemo(
-    () => ({ open, mounted, title, content, context }),
-    [open, mounted, title, content, context],
+    () => ({
+      open: [openVal, setOpen] as [string | null, Setter<string | null>],
+      mounted: [mountedVal, setMounted] as [string | null, Setter<string | null>],
+      title: [titleVal, setTitle] as [HTMLElement | null, Setter<HTMLElement | null>],
+      content: [contentVal, setContent] as [HTMLElement | null, Setter<HTMLElement | null>],
+      context: [contextVal, setContext] as [Record<string, unknown>, Setter<Record<string, unknown>>],
+    }),
+    [openVal, mountedVal, titleVal, contentVal, contextVal],
   );
 
   return (

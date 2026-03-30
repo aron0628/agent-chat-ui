@@ -14,13 +14,15 @@ export function useFileUpload({
   const dropRef = useRef<HTMLDivElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const dragCounter = useRef(0);
+  const contentBlocksRef = useRef<Base64ContentBlock[]>(initialBlocks);
+  contentBlocksRef.current = contentBlocks;
 
   const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
     const fileArray = Array.from(files);
-    const newBlocks = await processFiles(fileArray, contentBlocks, false);
+    const newBlocks = await processFiles(fileArray, contentBlocksRef.current, false);
 
     if (newBlocks.length > 0) {
       setContentBlocks((prev) => [...prev, ...newBlocks]);
@@ -58,7 +60,7 @@ export function useFileUpload({
       if (!e.dataTransfer) return;
 
       const files = Array.from(e.dataTransfer.files);
-      const newBlocks = await processFiles(files, contentBlocks, false);
+      const newBlocks = await processFiles(files, contentBlocksRef.current, false);
 
       if (newBlocks.length > 0) {
         setContentBlocks((prev) => [...prev, ...newBlocks]);
@@ -112,7 +114,7 @@ export function useFileUpload({
       window.removeEventListener("dragover", handleWindowDragOver);
       dragCounter.current = 0;
     };
-  }, [contentBlocks]);
+  }, []);
 
   const removeBlock = (idx: number) => {
     setContentBlocks((prev) => prev.filter((_, i) => i !== idx));

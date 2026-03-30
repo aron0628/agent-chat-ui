@@ -198,6 +198,11 @@ export function AssistantMessage({
               isLastMessage={isLastMessage}
               hasNoAIOrToolMessages={hasNoAIOrToolMessages}
             />
+            {contentString.length > 0 && !hasToolCalls && message?.response_metadata?.model_name && (
+              <div className="text-xs text-muted-foreground/60 -mt-1.5">
+                {String(message.response_metadata.model_name)}
+              </div>
+            )}
             <div
               className={cn(
                 "mr-auto flex items-center gap-2 transition-opacity",

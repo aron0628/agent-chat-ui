@@ -2,9 +2,10 @@
 
 import { useThreads } from "@/hooks/useThreads";
 import { useSettings } from "@/hooks/useSettings";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useSession } from "next-auth/react";
 import { DesktopSidebar } from "./components/DesktopSidebar";
 import { MobileSidebar } from "./components/MobileSidebar";
 
@@ -27,17 +28,24 @@ export default function ThreadHistory({ onShowGuide }: ThreadHistoryProps) {
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
   const finalApiUrl = apiUrl || envApiUrl;
   const finalAssistantId = assistantId?.trim();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   const { getThreads, threads, setThreads, threadsLoading, setThreadsLoading } =
     useThreads();
 
-  // Load threads when apiUrl and assistantId are available
+  // Use ref to avoid getThreads in deps (its identity changes when session refreshes)
+  const getThreadsRef = useRef(getThreads);
+  getThreadsRef.current = getThreads;
+
+  // Load threads when apiUrl, assistantId, or userId become available
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!finalApiUrl || !finalAssistantId) return;
+    if (!userId) return;
 
     setThreadsLoading(true);
-    getThreads()
+    getThreadsRef.current()
       .then(setThreads)
       .catch((error) => {
         console.error(error);
@@ -47,7 +55,7 @@ export default function ThreadHistory({ onShowGuide }: ThreadHistoryProps) {
   }, [
     finalApiUrl,
     finalAssistantId,
-    getThreads,
+    userId,
     setThreads,
     setThreadsLoading,
   ]);

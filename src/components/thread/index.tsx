@@ -215,7 +215,8 @@ export function Thread() {
     }
 
     prevMessageLength.current = messages.length;
-  }, [messages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length]);
 
   const hasBottomButtons =
     config.buttons.enableFileUpload ||

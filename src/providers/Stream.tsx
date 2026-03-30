@@ -106,9 +106,17 @@ const StreamSession = ({
     []
   );
 
+  // Use refs for all unstable references to keep callbacks stable
+  const setThreadIdRef = useRef(setThreadId);
+  const getThreadsRef = useRef(getThreads);
+  const setThreadsRef = useRef(setThreads);
+  setThreadIdRef.current = setThreadId;
+  getThreadsRef.current = getThreads;
+  setThreadsRef.current = setThreads;
+
   const handleThreadId = useCallback(
     (id: string) => {
-      setThreadId(id);
+      setThreadIdRef.current(id);
       // Record thread ownership
       fetch("/api/user-threads", {
         method: "POST",
@@ -117,9 +125,9 @@ const StreamSession = ({
       }).catch((err) => console.warn("[Stream] Failed to record thread ownership:", err));
       // Refetch threads list when thread ID changes.
       // Wait for some seconds before fetching so we're able to get the new thread that was created.
-      sleep().then(() => getThreads().then(setThreads).catch(console.error));
+      sleep().then(() => getThreadsRef.current().then(setThreadsRef.current).catch(console.error));
     },
-    [setThreadId, getThreads, setThreads]
+    []
   );
 
   const streamValue = useTypedStream({
@@ -134,10 +142,6 @@ const StreamSession = ({
 
   // Refetch threads when stream completes (to pick up generated titles)
   const prevIsLoading = useRef(false);
-  const getThreadsRef = useRef(getThreads);
-  const setThreadsRef = useRef(setThreads);
-  getThreadsRef.current = getThreads;
-  setThreadsRef.current = setThreads;
 
   useEffect(() => {
     if (prevIsLoading.current && !streamValue.isLoading) {
@@ -164,8 +168,27 @@ const StreamSession = ({
     });
   }, [apiKey, apiUrl]);
 
+  // streamValue.messages and streamValue.interrupt are getters that return
+  // new references on every access, so use stable primitives as deps instead.
+  const msgs = streamValue.messages;
+  const messagesLength = msgs?.length ?? 0;
+  const lastMessageId = messagesLength > 0 ? msgs[messagesLength - 1]?.id : undefined;
+  const interruptKey = JSON.stringify(streamValue.interrupt);
+
+  const memoizedStreamValue = useMemo(
+    () => streamValue,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      streamValue.isLoading,
+      streamValue.error,
+      messagesLength,
+      lastMessageId,
+      interruptKey,
+    ],
+  );
+
   return (
-    <StreamContext.Provider value={streamValue}>
+    <StreamContext.Provider value={memoizedStreamValue}>
       <AssistantConfigProvider
         apiUrl={apiUrl}
         assistantId={assistantId}
@@ -217,17 +240,19 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     [finalApiUrl]
   );
 
-  // Log connection parameters
-  console.log("[StreamProvider] Connection parameters:", {
-    apiUrl,
-    envApiUrl,
-    finalApiUrl,
-    resolvedApiUrl,
-    assistantId,
-    envAssistantId,
-    finalAssistantId,
-    apiKey: apiKey ? `${apiKey.substring(0, 10)}...` : "none",
-  });
+  // Log connection parameters (only when values change, not on every render)
+  useEffect(() => {
+    console.log("[StreamProvider] Connection parameters:", {
+      apiUrl,
+      envApiUrl,
+      finalApiUrl,
+      resolvedApiUrl,
+      assistantId,
+      envAssistantId,
+      finalAssistantId,
+      apiKey: apiKey ? `${apiKey.substring(0, 10)}...` : "none",
+    });
+  }, [resolvedApiUrl, finalAssistantId, apiKey]);
 
   return (
     <StreamSession
