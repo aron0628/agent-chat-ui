@@ -175,6 +175,22 @@ const StreamSession = ({
   const lastMessageId = messagesLength > 0 ? msgs[messagesLength - 1]?.id : undefined;
   const interruptKey = JSON.stringify(streamValue.interrupt);
 
+  // During streaming, force periodic re-renders so token-by-token updates
+  // reach consumers without causing infinite update loops.
+  const [streamTick, setStreamTick] = useState(0);
+  const tickRef = useRef<ReturnType<typeof setInterval>>(undefined);
+
+  useEffect(() => {
+    if (streamValue.isLoading) {
+      tickRef.current = setInterval(() => setStreamTick((t) => t + 1), 50);
+    } else {
+      setStreamTick(0);
+    }
+    return () => {
+      if (tickRef.current) clearInterval(tickRef.current);
+    };
+  }, [streamValue.isLoading]);
+
   const memoizedStreamValue = useMemo(
     () => streamValue,
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -184,6 +200,7 @@ const StreamSession = ({
       messagesLength,
       lastMessageId,
       interruptKey,
+      streamTick,
     ],
   );
 
