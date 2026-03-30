@@ -253,7 +253,7 @@ export function Thread() {
     stream.submit(
       { messages: [...toolMessages, newHumanMessage], context },
       {
-        streamMode: ["messages"],
+        streamMode: ["messages", "updates"],
         streamSubgraphs: true,
         streamResumable: true,
         optimisticValues: (prev) => ({
@@ -280,7 +280,7 @@ export function Thread() {
     setFirstTokenReceived(false);
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,
-      streamMode: ["messages"],
+      streamMode: ["messages", "updates"],
       streamSubgraphs: true,
       streamResumable: true,
     });

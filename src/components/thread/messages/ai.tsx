@@ -14,6 +14,7 @@ import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { GenericInterruptView } from "./generic-interrupt";
 import { useArtifact } from "../artifact";
+import { useCurrentNode } from "@/hooks/useCurrentNode";
 
 function CustomComponent({
   message,
@@ -230,9 +231,14 @@ export function AssistantMessage({
 }
 
 export function AssistantMessageLoading() {
+  const { label } = useCurrentNode();
+
   return (
     <div className="mr-auto flex items-start gap-3">
       <div className="bg-muted flex h-9 items-center gap-1.5 rounded-2xl px-5 py-2.5 shadow-sm border border-border/20">
+        {label && (
+          <span className="text-xs text-muted-foreground mr-1">{label}</span>
+        )}
         <div className="bg-foreground/40 h-1.5 w-1.5 animate-[pulse_1.5s_ease-in-out_infinite] rounded-full"></div>
         <div className="bg-foreground/40 h-1.5 w-1.5 animate-[pulse_1.5s_ease-in-out_0.5s_infinite] rounded-full"></div>
         <div className="bg-foreground/40 h-1.5 w-1.5 animate-[pulse_1.5s_ease-in-out_1s_infinite] rounded-full"></div>

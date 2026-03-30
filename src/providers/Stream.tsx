@@ -41,6 +41,9 @@ const useTypedStream = useStream<
 export type StreamContextType = ReturnType<typeof useTypedStream>;
 const StreamContext = createContext<StreamContextType | undefined>(undefined);
 
+// 현재 실행 중인 LangGraph 노드를 추적하는 컨텍스트
+export const CurrentNodeContext = createContext<string | null>(null);
+
 async function sleep(ms = TIMING.THREAD_FETCH_DELAY) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -92,6 +95,18 @@ const StreamSession = ({
 }) => {
   const [threadId, setThreadId] = useQueryState("threadId");
   const { getThreads, setThreads } = useThreads();
+  const [currentNode, setCurrentNode] = useState<string | null>(null);
+
+  // 노드 업데이트 이벤트에서 현재 실행 중인 노드명 추출
+  const handleUpdateEvent = useCallback(
+    (data: Record<string, unknown>) => {
+      const nodeNames = Object.keys(data);
+      if (nodeNames.length > 0) {
+        setCurrentNode(nodeNames[0]);
+      }
+    },
+    [],
+  );
 
   // Memoize callbacks to prevent infinite re-renders
   const handleCustomEvent = useCallback(
@@ -137,6 +152,7 @@ const StreamSession = ({
     threadId: threadId ?? null,
     fetchStateHistory: true,
     onCustomEvent: handleCustomEvent,
+    onUpdateEvent: handleUpdateEvent,
     onThreadId: handleThreadId,
   });
 
@@ -146,6 +162,7 @@ const StreamSession = ({
   useEffect(() => {
     if (prevIsLoading.current && !streamValue.isLoading) {
       getThreadsRef.current().then(setThreadsRef.current).catch(console.error);
+      setCurrentNode(null);
     }
     prevIsLoading.current = streamValue.isLoading;
   }, [streamValue.isLoading]);
@@ -205,15 +222,17 @@ const StreamSession = ({
   );
 
   return (
-    <StreamContext.Provider value={memoizedStreamValue}>
-      <AssistantConfigProvider
-        apiUrl={apiUrl}
-        assistantId={assistantId}
-        apiKey={apiKey}
-      >
-        {children}
-      </AssistantConfigProvider>
-    </StreamContext.Provider>
+    <CurrentNodeContext.Provider value={currentNode}>
+      <StreamContext.Provider value={memoizedStreamValue}>
+        <AssistantConfigProvider
+          apiUrl={apiUrl}
+          assistantId={assistantId}
+          apiKey={apiKey}
+        >
+          {children}
+        </AssistantConfigProvider>
+      </StreamContext.Provider>
+    </CurrentNodeContext.Provider>
   );
 };
 
