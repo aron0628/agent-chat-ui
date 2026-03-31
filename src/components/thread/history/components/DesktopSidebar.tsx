@@ -100,7 +100,8 @@ export function DesktopSidebar({
             try {
               await fetch("/api/auth/clear-cache", { method: "POST" });
             } catch {}
-            signOut({ callbackUrl: "/login" });
+            await signOut({ redirect: false });
+            window.location.href = "/login";
           }}
         >
           <LogOut className={ICON_SIZE_SM} />
