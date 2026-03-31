@@ -21,7 +21,7 @@ threads:
   sidebarOpenByDefault: true
 
 theme:
-  fontFamily: "serif"
+  fontFamily: "pretendard"
   fontSize: "large"
   colorScheme: "light"
 

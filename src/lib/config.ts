@@ -25,7 +25,7 @@ export interface ChatConfig {
     sidebarOpenByDefault: boolean;
   };
   theme: {
-    fontFamily: "sans" | "serif" | "mono";
+    fontFamily: "sans" | "serif" | "mono" | "pretendard";
     fontSize: "small" | "medium" | "large";
     colorScheme: "light" | "dark" | "auto";
   };
