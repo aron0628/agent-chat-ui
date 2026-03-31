@@ -4,7 +4,7 @@ import React from "react";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export const metadata: Metadata = {
-  title: "MobileFactory Chat",
+  title: "모바일팩토리 | 채팅",
   description: "MobileFactory AI Chat",
   icons: {
     icon: "/favicon.png",
