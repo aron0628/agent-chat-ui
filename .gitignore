@@ -28,6 +28,7 @@ dist-ssr
 # .env  ← git으로 관리 (private repo)
 .next/
 next-env.d.ts
+*.tsbuildinfo
 
 # OMC (oh-my-claudecode)
 .omc/
