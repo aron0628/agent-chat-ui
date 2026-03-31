@@ -38,6 +38,7 @@
     "esbuild": "^0.25.0",
     "esbuild-plugin-tailwindcss": "^2.0.1",
     "framer-motion": "^12.4.9",
+    "jose": "^6.2.2",
     "js-yaml": "^4.1.0",
     "katex": "^0.16.21",
     "langgraph-nextjs-api-passthrough": "^0.0.4",

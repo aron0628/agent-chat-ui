@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { insertUserThread, isThreadOwnedByUser } from "@/lib/auth-db";
+import { SignJWT } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -151,7 +152,14 @@ async function proxyRequest(
 
   const LANGGRAPH_AUTH_KEY = process.env.LANGGRAPH_AUTH_KEY ?? "";
   if (LANGGRAPH_AUTH_KEY) {
-    headers["Authorization"] = `Bearer ${LANGGRAPH_AUTH_KEY}`;
+    const jwtSecret = new TextEncoder().encode(LANGGRAPH_AUTH_KEY);
+    const userToken = await new SignJWT({ sub: userId })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuer("agent-chat-ui")
+      .setAudience("react-agent")
+      .setExpirationTime("60s")
+      .sign(jwtSecret);
+    headers["Authorization"] = `Bearer ${userToken}`;
   }
 
   try {
