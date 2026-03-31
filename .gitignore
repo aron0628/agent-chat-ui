@@ -25,7 +25,7 @@ dist-ssr
 
 # LangGraph API
 .langgraph_api
-.env
+# .env  ← git으로 관리 (private repo)
 .next/
 next-env.d.ts
 
