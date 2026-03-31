@@ -245,7 +245,78 @@ const defaultComponents: Record<string, unknown> = {
   },
 };
 
+/**
+ * Safely decode a percent-encoded string, tolerating malformed sequences.
+ * Groups consecutive percent-encoded bytes to handle multi-byte UTF-8.
+ */
+function safeDecodeUri(str: string): string {
+  try {
+    return decodeURIComponent(str);
+  } catch {
+    // Match groups of consecutive percent-encoded bytes
+    return str.replace(/(%[0-9A-Fa-f]{2})+/g, (group) => {
+      try {
+        return decodeURIComponent(group);
+      } catch {
+        // Try progressively smaller chunks from the start
+        let decoded = "";
+        let remaining = group;
+        while (remaining.length > 0) {
+          let matched = false;
+          // Try decoding from longest possible sequence down to single byte
+          for (let len = remaining.length; len >= 3; len -= 3) {
+            try {
+              decoded += decodeURIComponent(remaining.slice(0, len));
+              remaining = remaining.slice(len);
+              matched = true;
+              break;
+            } catch {
+              continue;
+            }
+          }
+          if (!matched) {
+            // Skip one %XX that can't be decoded
+            decoded += remaining.slice(0, 3);
+            remaining = remaining.slice(3);
+          }
+        }
+        return decoded;
+      }
+    });
+  }
+}
+
+/**
+ * Decode percent-encoded URLs and convert bare URLs in source/citation
+ * blockquotes into clickable markdown links with readable display text.
+ */
+function preprocessSourceUrls(markdown: string): string {
+  // Match bare URLs (with or without protocol) that contain percent-encoded chars
+  const urlPattern =
+    /(?:https?:\/\/)?[\w.-]+\.[\w]{2,}(?:\/[^\s,)>\]]*%[0-9A-Fa-f]{2}[^\s,)>\]]*)/g;
+
+  return markdown.replace(urlPattern, (encodedUrl) => {
+    const fullUrl = encodedUrl.startsWith("http")
+      ? encodedUrl
+      : `https://${encodedUrl}`;
+    const decoded = safeDecodeUri(encodedUrl);
+    // Extract domain for concise display
+    const domainMatch = decoded.match(
+      /(?:https?:\/\/)?([\w.-]+\.[\w]{2,})/,
+    );
+    const domain = domainMatch?.[1] ?? decoded;
+    // Get path and truncate for display
+    const pathStart = decoded.indexOf(domain) + domain.length;
+    const path = decoded.slice(pathStart);
+    const maxPathLen = 60;
+    const displayPath =
+      path.length > maxPathLen ? path.slice(0, maxPathLen) + "…" : path;
+    return `[${domain}${displayPath}](${fullUrl})`;
+  });
+}
+
 const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
+  const processed = preprocessSourceUrls(children);
   return (
     <div className="markdown-content">
       <ReactMarkdown
@@ -253,7 +324,7 @@ const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
         rehypePlugins={[rehypeKatex]}
         components={defaultComponents}
       >
-        {children}
+        {processed}
       </ReactMarkdown>
     </div>
   );
