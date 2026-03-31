@@ -23,6 +23,7 @@ import {
   Wrench,
   ArrowUp,
   BookOpen,
+  Globe,
 } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -109,6 +110,14 @@ export function Thread() {
     "hideToolCalls",
     parseAsBoolean.withDefault(true),
   );
+  const [enableWebSearch, setEnableWebSearch] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("lg:chat:enableWebSearch");
+    return stored !== null ? stored === "true" : true;
+  });
+  useEffect(() => {
+    localStorage.setItem("lg:chat:enableWebSearch", String(enableWebSearch));
+  }, [enableWebSearch]);
   const [input, setInput] = useState("");
   const [fullDescriptionOpen, setFullDescriptionOpen] = useState(false);
   const {
@@ -221,6 +230,7 @@ export function Thread() {
   const hasBottomButtons =
     config.buttons.enableFileUpload ||
     config.buttons.showToolCallToggle ||
+    config.buttons.showWebSearchToggle ||
     config.buttons.showAssistantSelector;
 
   const handleSubmit = (e: FormEvent) => {
@@ -253,6 +263,7 @@ export function Thread() {
     stream.submit(
       { messages: [...toolMessages, newHumanMessage], context },
       {
+        config: { configurable: { enable_web_search: enableWebSearch } },
         streamMode: ["messages", "updates"],
         streamSubgraphs: true,
         streamResumable: true,
@@ -280,6 +291,7 @@ export function Thread() {
     setFirstTokenReceived(false);
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,
+      config: { configurable: { enable_web_search: enableWebSearch } },
       streamMode: ["messages", "updates"],
       streamSubgraphs: true,
       streamResumable: true,
@@ -631,6 +643,29 @@ export function Thread() {
                               </TooltipTrigger>
                               <TooltipContent side="top">
                                 <p>{hideToolCalls ? "Show tool calls" : "Hide tool calls"}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          )}
+                          {config.buttons.showWebSearchToggle && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={() => setEnableWebSearch((prev) => !prev)}
+                                  className={cn(
+                                    "flex h-8 w-8 items-center justify-center rounded-lg transition-all",
+                                    enableWebSearch
+                                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                                      : "bg-muted text-muted-foreground hover:bg-accent"
+                                  )}
+                                >
+                                  <Globe className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top">
+                                <p>{enableWebSearch ? "웹검색 활성화됨" : "RAG만 사용"}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

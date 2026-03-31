@@ -14,6 +14,7 @@ export interface ChatConfig {
     enableFileUpload: boolean;
     showAssistantSelector: boolean;
     showToolCallToggle: boolean;
+    showWebSearchToggle: boolean;
     showSettings: boolean;
     chatInputPlaceholder: string;
   };
@@ -55,6 +56,7 @@ export const defaultConfig: ChatConfig = {
     enableFileUpload: true,
     showAssistantSelector: true,
     showToolCallToggle: true,
+    showWebSearchToggle: true,
     showSettings: true,
     chatInputPlaceholder: "무엇이든 물어보세요",
   },
