@@ -2,7 +2,7 @@ import { Thread } from "@langchain/langgraph-sdk";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { PanelRightOpen, PanelRightClose, BookOpen, LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { NewChatButton } from "./NewChatButton";
 import { ThreadList } from "./ThreadList";
 import { ThreadHistoryLoading } from "./ThreadHistoryLoading";
@@ -28,6 +28,7 @@ export function DesktopSidebar({
   onShowGuide,
 }: DesktopSidebarProps) {
   const { config } = useSettings();
+  const { data: session } = useSession();
   return (
     <div className="shadow-inner-right hidden h-screen w-[300px] shrink-0 flex-col items-stretch justify-start border-r-[1px] border-border lg:flex">
       {/* Header with collapse button on right */}
@@ -77,8 +78,21 @@ export function DesktopSidebar({
         )}
       </div>
 
-      {/* Logout button */}
-      <div className="border-t border-border px-4 py-2">
+      {/* User info + Logout */}
+      <div className="border-t border-border px-4 py-3">
+        {session?.user && (
+          <div className="flex items-center gap-3 mb-2 px-1">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold">
+              {session.user.name?.charAt(0) ?? "?"}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{session.user.name}</p>
+              {session.user.email && (
+                <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
+              )}
+            </div>
+          </div>
+        )}
         <Button
           variant="ghost"
           className="w-full justify-start gap-2 text-sm font-medium hover:bg-accent h-10 cursor-pointer"
